@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulados TJ-SP</title>
+<meta name="description" content="Simulados no estilo Vunesp para Escrevente Técnico Judiciário do TJ-SP, com correção automática.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #f0ede6;
+  --text: #1d1b18;
+  --muted: #6b665d;
+  --border: #e2ddd2;
+  --accent: #1f4e79;
+  --accent-soft: #e3ecf5;
+  --ok: #1e7a46;
+  --ok-soft: #e2f3e8;
+  --bad: #b3261e;
+  --bad-soft: #fbe6e4;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d9;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141311; --surface: #1d1c19; --surface-2: #26241f; --text: #ece9e2; --muted: #a29d92;
+    --border: #34312b; --accent: #8fb8e3; --accent-soft: #1f2d3b; --ok: #6fd19a; --ok-soft: #173326;
+    --bad: #f2948c; --bad-soft: #3a1d1a; --warn: #e6c071; --warn-soft: #362a12; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141311; --surface: #1d1c19; --surface-2: #26241f; --text: #ece9e2; --muted: #a29d92;
+  --border: #34312b; --accent: #8fb8e3; --accent-soft: #1f2d3b; --ok: #6fd19a; --ok-soft: #173326;
+  --bad: #f2948c; --bad-soft: #3a1d1a; --warn: #e6c071; --warn-soft: #362a12; --shadow: none;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 140px; }
+a { color: var(--accent); }
+h1 { font: 600 1.9rem/1.2 "Source Serif 4", Georgia, serif; margin: 0 0 8px; letter-spacing: -.01em; }
+h2.section { font: 600 1.35rem/1.3 "Source Serif 4", Georgia, serif; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; margin: 28px 0 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.intro { color: var(--muted); }
+.intro table, .md table { border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+.intro td, .intro th, .md td, .md th { border: 1px solid var(--border); padding: 4px 10px; text-align: left; }
+blockquote { margin: 16px 0; padding: 14px 18px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-family: "Source Serif 4", Georgia, serif; font-size: 1.02rem; }
+blockquote p { margin: 0 0 10px; } blockquote p:last-child { margin: 0; }
+hr { display: none; }
+.back { display: inline-block; margin-bottom: 20px; font-size: .9rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+/* Lista de simulados */
+.list { display: grid; gap: 12px; margin-top: 24px; }
+.card-link { display: block; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: var(--text); box-shadow: var(--shadow); transition: border-color .15s; }
+.card-link:hover { border-color: var(--accent); }
+.card-link strong { display: block; font-size: 1.05rem; }
+.card-link span { color: var(--muted); font-size: .9rem; }
+
+/* Questões */
+.q { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin: 14px 0; box-shadow: var(--shadow); scroll-margin-top: 16px; }
+.q-stem p { margin: 0 0 10px; }
+.q-stem ul { margin: 0 0 10px; padding-left: 22px; }
+.q-id { display: inline-block; font-weight: 700; font-size: .8rem; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 1px 8px; margin-right: 6px; vertical-align: 1px; }
+.opts { display: grid; gap: 8px; margin-top: 12px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; font: inherit; color: inherit; background: var(--surface-2); border: 1.5px solid transparent; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: border-color .12s, background .12s; }
+.opt:hover:not(:disabled) { border-color: var(--border); }
+.opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opt .letter { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .85rem; border: 1.5px solid var(--muted); color: var(--muted); }
+.opt.selected { border-color: var(--accent); background: var(--accent-soft); }
+.opt.selected .letter { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+.opt.correct .letter { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.opt.wrong .letter { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+.why { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: .93rem; background: var(--surface-2); }
+.why b.tag { margin-right: 4px; }
+.why.ok b.tag { color: var(--ok); } .why.bad b.tag { color: var(--bad); } .why.skip b.tag { color: var(--warn); }
+
+/* Resultado */
+.result { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 24px 0; box-shadow: var(--shadow); }
+.result .score { font: 600 2.4rem/1 "Source Serif 4", Georgia, serif; }
+.result .score small { font: 500 1rem Inter, sans-serif; color: var(--muted); margin-left: 6px; }
+.result table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: .92rem; }
+.result td { padding: 6px 0; border-top: 1px solid var(--border); }
+.result td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.result .hint { color: var(--muted); font-size: .9rem; margin: 12px 0 0; }
+
+/* Barra fixa */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--border); }
+.bar-inner { max-width: 760px; margin: 0 auto; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; }
+.progress { flex: 1; min-width: 0; }
+.progress-label { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress-track { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.btn { font: 600 .92rem Inter, sans-serif; border-radius: 9px; padding: 10px 16px; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); white-space: nowrap; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.md { font-size: .9rem; color: var(--muted); margin-top: 48px; }
+.err { color: var(--bad); }
+@media (max-width: 480px) { h1 { font-size: 1.55rem; } .btn { padding: 9px 12px; } .q { padding: 16px; } }
+</style>
+</head>
+<body>
+<main id="app"><p class="intro">Carregando…</p></main>
+<div class="bar" id="bar" hidden>
+  <div class="bar-inner">
+    <div class="progress">
+      <div class="progress-label" id="progLabel"></div>
+      <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+    <button class="btn" id="btnReset" type="button">Zerar</button>
+    <button class="btn primary" id="btnCheck" type="button">Conferir</button>
+  </div>
+</div>
+<script>
+// Simulados disponíveis. Para incluir um novo, adicione o arquivo em simulados/ e uma linha aqui.
+const SIMULADOS = [
+  { id: 'simulado1', file: 'simulados/simulado1.md', desc: '48 questões + 8 extras de negação com quantificadores' },
+  { id: 'simulado2', file: 'simulados/simulado2.md', desc: 'Simulado gêmeo: uma questão nova para cada questão do Simulado 1' },
+];
+
+const app = document.getElementById('app');
+const md = s => marked.parse(s);
+const mdi = s => marked.parseInline(s);
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+const OPT_RE = /^- (?:\[[ xX]\] )?([A-E])\) (.*)$/;
+const QID_RE = /^\*\*([A-Z]+\d+)\.\*\*\s*/;
+const ANS_RE = /^\|\s*([A-Z]+\d+)\s*\|\s*\*\*([A-E])\*\*\s*\|(.*)\|\s*$/;
+
+function parse(text) {
+  const lines = text.split(/\r?\n/);
+  const gIdx = lines.findIndex(l => /^#\s.*Gabarito/i.test(l));
+  const body = gIdx >= 0 ? lines.slice(0, gIdx) : lines;
+  const gab = gIdx >= 0 ? lines.slice(gIdx + 1) : [];
+
+  const answers = {};
+  for (const l of gab) { const m = l.match(ANS_RE); if (m) answers[m[1]] = { letter: m[2], why: m[3].trim() }; }
+  const fIdx = gab.findIndex(l => /^##\s+Fontes/i.test(l));
+  const footer = fIdx >= 0 ? gab.slice(fIdx).join('\n') : '';
+
+  let title = '', intro = [];
+  const segs = []; let buf = []; let q = null; let section = '';
+  const flush = () => { if (buf.join('').trim()) segs.push({ type: 'md', text: buf.join('\n') }); buf = []; };
+  let i = 0;
+  for (; i < body.length; i++) { // cabeçalho até o primeiro "## "
+    const l = body[i];
+    if (/^##\s/.test(l)) break;
+    if (/^#\s/.test(l) && !title) { title = l.replace(/^#\s+/, ''); continue; }
+    if (/gabarito comentado/i.test(l)) continue;
+    intro.push(l);
+  }
+  for (; i < body.length; i++) {
+    const l = body[i];
+    const om = l.match(OPT_RE);
+    if (om && q) { q.options.push({ letter: om[1], text: om[2] }); continue; }
+    if (q && q.options.length) { segs.push(q); q = null; }
+    if (/^##\s/.test(l)) {
+      flush(); section = l.replace(/^##\s+/, '');
+      segs.push({ type: 'section', title: section }); continue;
+    }
+    const qm = l.match(QID_RE);
+    if (qm) { flush(); q = { type: 'q', id: qm[1], section, stem: [l.replace(QID_RE, '')], options: [] }; continue; }
+    if (q) q.stem.push(l); else buf.push(l);
+  }
+  if (q && q.options.length) segs.push(q);
+  flush();
+  return { title, intro: intro.join('\n'), segs, answers, footer };
+}
+
+function renderList() {
+  document.title = 'Simulados TJ-SP';
+  app.innerHTML = `
+    <h1>Simulados TJ-SP</h1>
+    <p class="intro">Escrevente Técnico Judiciário · questões no estilo Vunesp, elaboradas para estudo (não são cópias de provas reais).
+    Suas respostas ficam salvas neste navegador; use <b>Conferir</b> para ver o resultado e <b>Zerar</b> para recomeçar.</p>
+    <div class="list">${SIMULADOS.map(s => `
+      <a class="card-link" href="?s=${s.id}"><strong id="t-${s.id}">${s.id}</strong><span>${s.desc}</span></a>`).join('')}
+    </div>`;
+  SIMULADOS.forEach(s => fetch(s.file).then(r => r.text()).then(t => {
+    const m = t.match(/^#\s+(.+)$/m); if (m) document.getElementById('t-' + s.id).textContent = m[1];
+  }).catch(() => {}));
+}
+
+async function renderSimulado(sim) {
+  let text;
+  try { const r = await fetch(sim.file, { cache: 'no-cache' }); if (!r.ok) throw 0; text = await r.text(); }
+  catch { app.innerHTML = `<a class="back" href="./">← Simulados</a><p class="err">Não foi possível carregar o simulado.</p>`; return; }
+
+  const data = parse(text);
+  const qs = data.segs.filter(s => s.type === 'q');
+  const key = 'tjsp:' + sim.id;
+  let state = store.get(key) || { answers: {}, checked: false };
+  const save = () => store.set(key, state);
+  document.title = data.title || sim.id;
+
+  app.innerHTML = `
+    <a class="back" href="./">← Simulados</a>
+    <h1>${mdi(data.title)}</h1>
+    <div class="intro">${md(data.intro)}</div>
+    <div id="result"></div>
+    <div id="qs"></div>
+    ${data.footer ? `<div class="md">${md(data.footer)}</div>` : ''}`;
+
+  const qsEl = document.getElementById('qs');
+  qsEl.innerHTML = data.segs.map(s => {
+    if (s.type === 'section') return `<h2 class="section">${mdi(s.title)}</h2>`;
+    if (s.type === 'md') return md(s.text);
+    const stem = md(s.stem.join('\n'));
+    return `<div class="q" id="q-${s.id}" data-id="${s.id}">
+      <div class="q-stem">${stem.replace(/^<p>/, `<p><span class="q-id">${s.id}</span>`)}</div>
+      <div class="opts" role="radiogroup" aria-label="Alternativas da questão ${s.id}">
+        ${s.options.map(o => `<button type="button" class="opt" role="radio" data-l="${o.letter}"><span class="letter">${o.letter}</span><span>${mdi(o.text)}</span></button>`).join('')}
+      </div>
+      <div class="why" hidden></div>
+    </div>`;
+  }).join('');
+
+  qsEl.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b || state.checked) return;
+    const id = b.closest('.q').dataset.id;
+    state.answers[id] = state.answers[id] === b.dataset.l ? undefined : b.dataset.l;
+    if (!state.answers[id]) delete state.answers[id];
+    save(); paint();
+  });
+
+  const bar = document.getElementById('bar'); bar.hidden = false;
+  const btnCheck = document.getElementById('btnCheck');
+  const btnReset = document.getElementById('btnReset');
+  let resetTimer;
+
+  btnCheck.onclick = () => {
+    if (state.checked) return;
+    state.checked = true; save(); paint();
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  btnReset.onclick = () => {
+    if (!btnReset.classList.contains('danger')) {
+      btnReset.classList.add('danger'); btnReset.textContent = 'Confirmar?';
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { btnReset.classList.remove('danger'); btnReset.textContent = 'Zerar'; }, 3000);
+      return;
+    }
+    clearTimeout(resetTimer); btnReset.classList.remove('danger'); btnReset.textContent = 'Zerar';
+    state = { answers: {}, checked: false }; save(); paint();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function paint() {
+    const answered = qs.filter(q => state.answers[q.id]).length;
+    document.getElementById('progFill').style.width = (100 * answered / qs.length) + '%';
+    let correct = 0; const bySec = {};
+    for (const q of qs) {
+      const el = document.getElementById('q-' + q.id);
+      const mine = state.answers[q.id];
+      const ans = data.answers[q.id];
+      const ok = ans && mine === ans.letter;
+      if (ok) correct++;
+      const sec = (bySec[q.section] ||= { ok: 0, n: 0 }); sec.n++; if (ok) sec.ok++;
+      el.querySelectorAll('.opt').forEach(b => {
+        const l = b.dataset.l;
+        b.disabled = state.checked;
+        b.setAttribute('aria-checked', mine === l);
+        b.className = 'opt' + (state.checked
+          ? (ans && l === ans.letter ? ' correct' : (l === mine ? ' wrong' : ''))
+          : (l === mine ? ' selected' : ''));
+      });
+      const why = el.querySelector('.why');
+      if (state.checked && ans) {
+        why.hidden = false;
+        why.className = 'why ' + (ok ? 'ok' : mine ? 'bad' : 'skip');
+        why.innerHTML = `<b class="tag">${ok ? 'Correta.' : mine ? `Errada. Resposta: ${ans.letter}.` : `Não respondida. Resposta: ${ans.letter}.`}</b> ${mdi(ans.why)}`;
+      } else { why.hidden = true; }
+    }
+    document.getElementById('progLabel').textContent = state.checked
+      ? `${correct} de ${qs.length} acertos`
+      : `${answered} de ${qs.length} respondidas`;
+    btnCheck.hidden = state.checked;
+
+    const res = document.getElementById('result');
+    if (!state.checked) { res.innerHTML = ''; return; }
+    const pct = Math.round(100 * correct / qs.length);
+    res.innerHTML = `<div class="result">
+      <div class="score">${pct}%<small>${correct} de ${qs.length} acertos · ${qs.length - answered} em branco</small></div>
+      <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${mdi(s)}</td><td>${v.ok}/${v.n}</td></tr>`).join('')}</table>
+      <p class="hint">As explicações aparecem embaixo de cada questão. Clique em <b>Zerar</b> para fazer de novo.</p>
+    </div>`;
+  }
+  paint();
+}
+
+const sid = new URLSearchParams(location.search).get('s');
+const sim = SIMULADOS.find(s => s.id === sid);
+sim ? renderSimulado(sim) : renderList();
+</script>
+</body>
+</html>

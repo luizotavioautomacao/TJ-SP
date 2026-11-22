@@ -49,3 +49,10 @@ Direito é estudado pela **lei seca**, só nos artigos listados no edital. Infor
 ## Simulados
 
 As questões foram elaboradas no estilo Vunesp e **não são cópias de provas reais**. Cada simulado traz o gabarito comentado no fim do arquivo.
+
+### Fazer online
+
+Os simulados podem ser feitos direto no navegador, com correção automática:
+**https://luizotavioautomacao.github.io/TJ-SP/**
+
+As respostas ficam salvas no navegador de cada aluno. **Conferir** mostra a nota por matéria e o gabarito comentado; **Zerar** apaga tudo para recomeçar. A página lê os arquivos de `simulados/`, então qualquer edição neles aparece no site. Para incluir um simulado novo, adicione o `.md` em `simulados/` e uma linha na lista `SIMULADOS` do `index.html`.
