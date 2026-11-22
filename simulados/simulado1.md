@@ -1,6 +1,6 @@
 # Simulado 1 — TJ-SP Escrevente
 
-Reúne as questões **originais** feitas neste chat, das quais o `simulado-gemeo-tjsp.md` foi derivado.
+Reúne as questões **originais** feitas neste chat, das quais o Simulado 2 (`simulado2.md`) foi derivado.
 Todas foram elaboradas no estilo Vunesp e não são cópias de provas reais.
 
 | Bloco | Questões |

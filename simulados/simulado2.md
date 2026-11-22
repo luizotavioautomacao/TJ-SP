@@ -1,4 +1,4 @@
-# Simulado Gêmeo — TJ-SP Escrevente
+# Simulado 2 — TJ-SP Escrevente
 
 Uma questão nova para **cada** exercício que já fizemos, cobrando o mesmo tema por outro ângulo.
 Todas as questões foram elaboradas no estilo Vunesp e não são cópias de provas reais.

@@ -18,7 +18,7 @@ planos/
   temas-alta-probabilidade.md   Revisão de véspera para a semana da prova (08–14/03)
 simulados/
   simulado1.md                  48 questões originais no estilo Vunesp, com gabarito comentado
-  simulado2.md                  Simulado "gêmeo": uma questão nova por questão do simulado 1
+  simulado2.md                  Simulado 2: uma questão nova por questão do simulado 1
 ```
 
 ## Planos de estudo
