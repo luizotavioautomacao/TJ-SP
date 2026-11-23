@@ -16,19 +16,32 @@ planos/
   cronograma.md                 Plano completo de 17 semanas (~404h, ~3h30/dia)
   regra-pareto.md               Plano 80/20 focado nos temas que mais caem (~4h45/dia)
   temas-alta-probabilidade.md   Revisão de véspera para a semana da prova (08–14/03)
+Makefile                        Submódulo recursos/: make recursos (baixar) · make atualizar · make status
 front-end/
-  index.html                    Site dos simulados (GitHub Pages; o index.html da raiz redireciona para cá)
+  index.html                    Site: simulados, provas oficiais e leitura do edital (?doc=edital)
   markdown/
+    edital-2026.md              Edital 02/2026 em Markdown (gerado: make -C tools edital)
     simulado1.md                48 questões originais no estilo Vunesp, com gabarito comentado
     simulado2.md                Simulado 2: uma questão nova por questão do simulado 1
     TJ-SP-<ano>.md              Provas oficiais 2017, 2018, 2021, 2023, 2024 (e reaplicação) e 2025 com gabarito (geradas)
     img/TJ-SP-<ano>/            Figuras recortadas das provas oficiais
-recursos/
-  edital.md                     Edital 02/2026 em Markdown (gerado)
-  provas/                       PDFs das provas e gabaritos + gabaritos transcritos à mão (.txt)
+recursos/                       Submódulo git (repositório privado recursos-TJ-SP)
+  edital/                       PDF do edital (+ cópia do edital-2026.md)
+  material/                     Materiais de estudo em PDF
+  provas/                       PDFs das provas e gabaritos
 tools/
   Makefile                      Comandos de conversão: make -C tools help
   src/                          Conversores PDF → Markdown (pdf_to_md.py, prova_to_md.py, perfis/)
+```
+
+### Baixar os recursos (submódulo)
+
+Os PDFs (edital, provas, gabaritos e materiais) ficam no repositório privado `recursos-TJ-SP`, montado em `recursos/` como submódulo:
+
+```
+git clone --recurse-submodules https://github.com/luizotavioautomacao/TJ-SP   # clone já com recursos/
+make recursos     # em um clone existente: baixa recursos/ no commit registrado
+make atualizar    # traz o último commit do recursos-TJ-SP (depois: git add recursos && git commit)
 ```
 
 ## Planos de estudo

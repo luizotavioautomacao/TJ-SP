@@ -1,6 +1,6 @@
 # Ementa do concurso — TJ-SP Escrevente Técnico Judiciário
 
-> Resumo do **Edital de Abertura n.º 02/2026** (Vunesp), feito a partir de [`recursos/edital.md`](../front-end/markdown/edital-2026.md).
+> Resumo do **Edital de Abertura n.º 02/2026** (Vunesp), feito a partir de [`front-end/markdown/edital-2026.md`](../front-end/markdown/edital-2026.md).
 > Serve de referência para montar simulados e conferir se o estudo cobre todo o conteúdo. Em caso de dúvida, vale o edital.
 
 ## Visão geral

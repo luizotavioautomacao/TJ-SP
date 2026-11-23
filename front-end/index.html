@@ -110,6 +110,32 @@ hr { display: none; }
 .q img, blockquote img, .md img { max-width: 100%; height: auto; vertical-align: middle; background: #fff; border-radius: 4px; }
 .q img[alt="símbolo"] { height: 1.15em; width: auto; border-radius: 0; }
 .opt img { max-height: 120px; }
+/* Documento (edital) */
+.doc { font-size: 1rem; overflow-wrap: anywhere; }
+.doc table { overflow-wrap: normal; }
+.doc h1 { margin-bottom: 4px; }
+.doc h2 { font: 600 1.3rem/1.3 "Source Serif 4", Georgia, serif; margin: 44px 0 14px; padding-bottom: 6px; border-bottom: 1px solid var(--border); scroll-margin-top: 16px; }
+.doc h3 { font-size: .95rem; margin: 26px 0 10px; color: var(--muted); text-transform: none; letter-spacing: 0; scroll-margin-top: 16px; }
+.doc h4 { font-size: .95rem; margin: 20px 0 8px; scroll-margin-top: 16px; }
+.doc p { margin: 0 0 12px; }
+.doc ul { padding-left: 22px; margin: 0 0 12px; }
+.doc .table-wrap { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.doc table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+.doc th, .doc td { border-bottom: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+.doc th { background: var(--surface-2); font-weight: 600; }
+.doc tr:last-child td { border-bottom: 0; }
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 20px 0 8px; box-shadow: var(--shadow); }
+.toc summary { cursor: pointer; font-weight: 600; }
+.toc ol { margin: 10px 0 0; padding-left: 20px; columns: 2; column-gap: 28px; font-size: .9rem; }
+.toc li { margin: 3px 0; break-inside: avoid; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.chip { font-size: .85rem; padding: 6px 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-decoration: none; font-weight: 500; }
+.chip:hover { text-decoration: underline; }
+.topo { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: 1.1rem; cursor: pointer; }
+@media (max-width: 560px) { .toc ol { columns: 1; } }
 .md { font-size: .9rem; color: var(--muted); margin-top: 48px; }
 .err { color: var(--bad); }
 @media (max-width: 480px) { h1 { font-size: 1.55rem; } .btn { padding: 9px 12px; } .q { padding: 16px; } }
@@ -139,6 +165,12 @@ const SIMULADOS = [
   { id: 'tjsp2017', file: 'markdown/TJ-SP-2017.md', desc: 'Prova oficial de 02/07/2017 · 100 questões', oficial: true },
   { id: 'simulado1', file: 'markdown/simulado1.md', desc: '48 questões + 8 extras de negação com quantificadores' },
   { id: 'simulado2', file: 'markdown/simulado2.md', desc: 'Uma questão nova para cada questão do Simulado 1' },
+];
+
+// Documentos de consulta (lidos como Markdown, sem questões)
+const DOCUMENTOS = [
+  { id: 'edital', file: 'markdown/edital-2026.md', titulo: 'Edital de Abertura n.º 02/2026',
+    desc: 'Texto integral: inscrições, provas, critérios de aprovação, conteúdo programático (Anexo VIII) e cronogramas' },
 ];
 
 const app = document.getElementById('app');
@@ -199,6 +231,10 @@ function renderList() {
     <h1>Simulados TJ-SP</h1>
     <p class="intro">Escrevente Técnico Judiciário · Vunesp. Suas respostas ficam salvas neste navegador;
     use <b>Conferir</b> para ver o resultado e <b>Zerar</b> para recomeçar.</p>
+    <h2 class="section">Edital</h2>
+    <div class="list">${DOCUMENTOS.map(d => `
+      <a class="card-link" href="?doc=${d.id}"><strong>${d.titulo}</strong><span>${d.desc}</span></a>`).join('')}
+    </div>
     ${[['Provas anteriores (oficiais)', true], ['Simulados autorais (estilo Vunesp, não são provas reais)', false]].map(([t, of]) => `
     <h2 class="section">${t}</h2>
     <div class="list">${SIMULADOS.filter(s => !!s.oficial === of).map(s => `
@@ -318,9 +354,67 @@ async function renderSimulado(sim) {
   paint();
 }
 
-const sid = new URLSearchParams(location.search).get('s');
+function slug(t) {
+  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+async function renderDoc(doc) {
+  document.title = doc.titulo;
+  let text;
+  try { const r = await fetch(doc.file, { cache: 'no-cache' }); if (!r.ok) throw 0; text = await r.text(); }
+  catch { app.innerHTML = `<a class="back" href="./">← Simulados</a><p class="err">Não foi possível carregar o documento.</p>`; return; }
+
+  app.innerHTML = `<a class="back" href="./">← Simulados</a><article class="doc">${md(text)}</article>`;
+  const art = app.querySelector('.doc');
+
+  // tabelas com rolagem própria no celular
+  art.querySelectorAll('table').forEach(t => { const w = document.createElement('div'); w.className = 'table-wrap'; t.replaceWith(w); w.appendChild(t); });
+  // links externos em nova aba
+  art.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+
+  // âncoras e sumário a partir dos títulos de nível 2
+  const usados = {};
+  art.querySelectorAll('h2, h3, h4').forEach(h => {
+    let id = slug(h.textContent) || 'secao'; usados[id] = (usados[id] || 0) + 1; if (usados[id] > 1) id += '-' + usados[id];
+    h.id = id;
+  });
+  const h2s = [...art.querySelectorAll('h2')];
+  // "ANEXO VIII" + título do anexo (próximo h3), em caixa normal
+  const rotulo = h => {
+    const prox = h.nextElementSibling;
+    if (/^ANEXO [IVX]+$/.test(h.textContent) && prox && prox.tagName === 'H3') {
+      const t = prox.textContent.toLowerCase().replace(/^./, c => c.toUpperCase());
+      return `${h.textContent} — ${t.length > 70 ? t.slice(0, 67) + '…' : t}`;
+    }
+    return h.textContent;
+  };
+  const achar = re => h2s.find(h => re.test(h.textContent)) || [...art.querySelectorAll('h3, h4')].find(h => re.test(h.textContent));
+  const atalhos = [['Conteúdo programático', /conte[úu]do program[áa]tico/i], ['Cronogramas', /^cronogramas/i],
+                   ['Provas', /DAS PROVAS OBJETIVA/i], ['Julgamento', /JULGAMENTO DA PROVA OBJETIVA/i], ['Quadro de vagas', /quadro de vagas/i]]
+    .map(([t, re]) => [t, achar(re)]).filter(([, h]) => h);
+  const nav = document.createElement('div');
+  nav.innerHTML = `
+    <div class="chips">${atalhos.map(([t, h]) => `<a class="chip" href="#${h.id}">${t}</a>`).join('')}</div>
+    <details class="toc" ${matchMedia('(min-width: 720px)').matches ? 'open' : ''}>
+      <summary>Sumário</summary>
+      <ol>${h2s.map(h => `<li><a href="#${h.id}">${rotulo(h)}</a></li>`).join('')}</ol>
+    </details>`;
+  const primeiro = art.querySelector('h1');
+  (primeiro ? primeiro.nextElementSibling : art.firstChild)?.before(...nav.children);
+
+  const topo = document.createElement('button');
+  topo.className = 'topo'; topo.type = 'button'; topo.title = 'Voltar ao topo'; topo.setAttribute('aria-label', 'Voltar ao topo'); topo.textContent = '↑';
+  topo.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.body.appendChild(topo);
+
+  if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+}
+
+const params = new URLSearchParams(location.search);
+const doc = DOCUMENTOS.find(d => d.id === params.get('doc'));
+const sid = params.get('s');
 const sim = SIMULADOS.find(s => s.id === sid);
-sim ? renderSimulado(sim) : renderList();
+doc ? renderDoc(doc) : sim ? renderSimulado(sim) : renderList();
 </script>
 </body>
 </html>
