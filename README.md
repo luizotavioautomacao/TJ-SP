@@ -16,9 +16,19 @@ planos/
   cronograma.md                 Plano completo de 17 semanas (~404h, ~3h30/dia)
   regra-pareto.md               Plano 80/20 focado nos temas que mais caem (~4h45/dia)
   temas-alta-probabilidade.md   Revisão de véspera para a semana da prova (08–14/03)
-simulados/
-  simulado1.md                  48 questões originais no estilo Vunesp, com gabarito comentado
-  simulado2.md                  Simulado 2: uma questão nova por questão do simulado 1
+front-end/
+  index.html                    Site dos simulados (GitHub Pages; o index.html da raiz redireciona para cá)
+  markdown/
+    simulado1.md                48 questões originais no estilo Vunesp, com gabarito comentado
+    simulado2.md                Simulado 2: uma questão nova por questão do simulado 1
+    TJ-SP-<ano>.md              Provas oficiais 2017, 2018, 2021 e 2025 com gabarito (geradas)
+    img/TJ-SP-<ano>/            Figuras recortadas das provas oficiais
+recursos/
+  edital.md                     Edital 02/2026 em Markdown (gerado)
+  provas/                       PDFs das provas e gabaritos (não versionados) + 2021gabarito.txt
+tools/
+  Makefile                      Comandos de conversão: make -C tools help
+  src/                          Conversores PDF → Markdown (pdf_to_md.py, prova_to_md.py, perfis/)
 ```
 
 ## Planos de estudo
@@ -55,4 +65,6 @@ As questões foram elaboradas no estilo Vunesp e **não são cópias de provas r
 Os simulados podem ser feitos direto no navegador, com correção automática:
 **https://luizotavioautomacao.github.io/TJ-SP/**
 
-As respostas ficam salvas no navegador de cada aluno. **Conferir** mostra a nota por matéria e o gabarito comentado; **Zerar** apaga tudo para recomeçar. A página lê os arquivos de `simulados/`, então qualquer edição neles aparece no site. Para incluir um simulado novo, adicione o `.md` em `simulados/` e uma linha na lista `SIMULADOS` do `index.html`.
+As respostas ficam salvas no navegador de cada aluno. **Conferir** mostra a nota por matéria e o gabarito comentado; **Zerar** apaga tudo para recomeçar. A página (`front-end/index.html`) lê os arquivos de `front-end/markdown/`, então qualquer edição neles aparece no site. Para incluir um simulado novo, adicione o `.md` em `front-end/markdown/` e uma linha na lista `SIMULADOS` do `front-end/index.html`.
+
+As provas oficiais são geradas a partir dos PDFs com `make -C tools provas` (ou `prova-2017`, `prova-2018`, `prova-2021`, `prova-2025`).
