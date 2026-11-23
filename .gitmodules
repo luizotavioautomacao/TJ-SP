@@ -1,0 +1,3 @@
+[submodule "recursos"]
+	path = recursos
+	url = https://github.com/luizotavioautomacao/recursos-TJ-SP
