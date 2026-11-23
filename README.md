@@ -21,7 +21,7 @@ front-end/
   markdown/
     simulado1.md                48 questões originais no estilo Vunesp, com gabarito comentado
     simulado2.md                Simulado 2: uma questão nova por questão do simulado 1
-    TJ-SP-<ano>.md              Provas oficiais 2017, 2018, 2021 e 2025 com gabarito (geradas)
+    TJ-SP-<ano>.md              Provas oficiais 2017, 2018, 2021, 2023, 2024 e 2025 com gabarito (geradas)
     img/TJ-SP-<ano>/            Figuras recortadas das provas oficiais
 recursos/
   edital.md                     Edital 02/2026 em Markdown (gerado)
@@ -67,4 +67,4 @@ Os simulados podem ser feitos direto no navegador, com correção automática:
 
 As respostas ficam salvas no navegador de cada aluno. **Conferir** mostra a nota por matéria e o gabarito comentado; **Zerar** apaga tudo para recomeçar. A página (`front-end/index.html`) lê os arquivos de `front-end/markdown/`, então qualquer edição neles aparece no site. Para incluir um simulado novo, adicione o `.md` em `front-end/markdown/` e uma linha na lista `SIMULADOS` do `front-end/index.html`.
 
-As provas oficiais são geradas a partir dos PDFs com `make -C tools provas` (ou `prova-2017`, `prova-2018`, `prova-2021`, `prova-2025`).
+As provas oficiais são geradas a partir dos PDFs com `make -C tools provas` (ou `prova-2017`, `prova-2018`, `prova-2021`, `prova-2023`, `prova-2024`, `prova-2025`).
