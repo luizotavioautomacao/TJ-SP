@@ -230,7 +230,7 @@ function renderList() {
   app.innerHTML = `
     <h1>Simulados TJ-SP</h1>
     <p class="intro">Escrevente Técnico Judiciário · Vunesp. Suas respostas ficam salvas neste navegador;
-    use <b>Conferir</b> para ver o resultado e <b>Zerar</b> para recomeçar.</p>
+    use <b>Conferir</b> para ver o resultado, <b>Continuar</b> para voltar a responder sem perder as marcações e <b>Zerar</b> para recomeçar.</p>
     <h2 class="section">Edital</h2>
     <div class="list">${DOCUMENTOS.map(d => `
       <a class="card-link" href="?doc=${d.id}"><strong>${d.titulo}</strong><span>${d.desc}</span></a>`).join('')}
@@ -294,10 +294,10 @@ async function renderSimulado(sim) {
   const btnReset = document.getElementById('btnReset');
   let resetTimer;
 
+  // Conferir mostra o gabarito; Continuar esconde o gabarito e mantém as respostas marcadas
   btnCheck.onclick = () => {
-    if (state.checked) return;
-    state.checked = true; save(); paint();
-    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    state.checked = !state.checked; save(); paint();
+    if (state.checked) document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   btnReset.onclick = () => {
     if (!btnReset.classList.contains('danger')) {
@@ -340,7 +340,8 @@ async function renderSimulado(sim) {
     document.getElementById('progLabel').textContent = state.checked
       ? `${correct} de ${qs.length} acertos`
       : `${answered} de ${qs.length} respondidas`;
-    btnCheck.hidden = state.checked;
+    btnCheck.textContent = state.checked ? 'Continuar' : 'Conferir';
+    btnCheck.title = state.checked ? 'Esconde o gabarito e volta a responder, mantendo as respostas marcadas' : 'Mostra o resultado e o gabarito comentado';
 
     const res = document.getElementById('result');
     if (!state.checked) { res.innerHTML = ''; return; }
@@ -348,7 +349,7 @@ async function renderSimulado(sim) {
     res.innerHTML = `<div class="result">
       <div class="score">${pct}%<small>${correct} de ${qs.length} acertos · ${qs.length - answered} em branco</small></div>
       <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${mdi(s)}</td><td>${v.ok}/${v.n}</td></tr>`).join('')}</table>
-      <p class="hint">As explicações aparecem embaixo de cada questão. Clique em <b>Zerar</b> para fazer de novo.</p>
+      <p class="hint">As explicações aparecem embaixo de cada questão. Clique em <b>Continuar</b> para esconder o gabarito e seguir respondendo (as respostas marcadas ficam) ou em <b>Zerar</b> para recomeçar do zero.</p>
     </div>`;
   }
   paint();
