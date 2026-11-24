@@ -134,7 +134,13 @@ hr { display: none; }
 .chip { font-size: .85rem; padding: 6px 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-decoration: none; font-weight: 500; }
 .chip:hover { text-decoration: underline; }
 .topo { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: 1.1rem; cursor: pointer; }
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted); box-shadow: var(--shadow); font-size: 1.1rem; cursor: pointer;
+  opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .2s, transform .2s, visibility .2s; z-index: 5; }
+.topo.visivel { opacity: .85; visibility: visible; transform: none; }
+.topo:hover, .topo:focus-visible { opacity: 1; color: var(--accent); border-color: var(--accent); }
+.result .resumo { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: .9rem; color: var(--muted); }
+.result .resumo b { color: var(--text); font-variant-numeric: tabular-nums; }
+.result td .anul { color: var(--muted); font-size: .8rem; margin-right: 8px; }
 @media (max-width: 560px) { .toc ol { columns: 1; } }
 .md { font-size: .9rem; color: var(--muted); margin-top: 48px; }
 .err { color: var(--bad); }
@@ -296,8 +302,11 @@ async function renderSimulado(sim) {
 
   // Conferir mostra o gabarito; Continuar esconde o gabarito e mantém as respostas marcadas
   btnCheck.onclick = () => {
+    // Mantém na tela a questão que o aluno está vendo: as explicações inseridas acima empurrariam a página
+    const ancora = [...qsEl.querySelectorAll('.q')].find(q => q.getBoundingClientRect().top >= 0);
+    const antes = ancora?.getBoundingClientRect().top;
     state.checked = !state.checked; save(); paint();
-    if (state.checked) document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (ancora) window.scrollBy({ top: ancora.getBoundingClientRect().top - antes, behavior: 'instant' });
   };
   btnReset.onclick = () => {
     if (!btnReset.classList.contains('danger')) {
@@ -314,14 +323,15 @@ async function renderSimulado(sim) {
   function paint() {
     const answered = qs.filter(q => state.answers[q.id]).length;
     document.getElementById('progFill').style.width = (100 * answered / qs.length) + '%';
-    let correct = 0; const bySec = {};
+    let correct = 0, certas = 0, erradas = 0, anuladas = 0; const bySec = {};
     for (const q of qs) {
       const el = document.getElementById('q-' + q.id);
       const mine = state.answers[q.id];
       const ans = data.answers[q.id];
       const ok = ans && (ans.anulada || mine === ans.letter);
       if (ok) correct++;
-      const sec = (bySec[q.section] ||= { ok: 0, n: 0 }); sec.n++; if (ok) sec.ok++;
+      if (ans?.anulada) anuladas++; else if (ok) certas++; else if (mine) erradas++;
+      const sec = (bySec[q.section] ||= { ok: 0, n: 0, anul: 0 }); sec.n++; if (ok) sec.ok++; if (ans?.anulada) sec.anul++;
       el.querySelectorAll('.opt').forEach(b => {
         const l = b.dataset.l;
         b.disabled = state.checked;
@@ -346,13 +356,34 @@ async function renderSimulado(sim) {
     const res = document.getElementById('result');
     if (!state.checked) { res.innerHTML = ''; return; }
     const pct = Math.round(100 * correct / qs.length);
+    const branco = qs.length - certas - erradas - anuladas; // não respondidas, sem contar as anuladas
+    const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
     res.innerHTML = `<div class="result">
-      <div class="score">${pct}%<small>${correct} de ${qs.length} acertos · ${qs.length - answered} em branco</small></div>
-      <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${mdi(s)}</td><td>${v.ok}/${v.n}</td></tr>`).join('')}</table>
+      <div class="score">${pct}%<small>${correct} de ${qs.length} acertos</small></div>
+      <div class="resumo">
+        <span><b>${certas}</b> ${certas === 1 ? 'certa' : 'certas'}</span><span><b>${erradas}</b> ${erradas === 1 ? 'errada' : 'erradas'}</span><span><b>${branco}</b> em branco</span>
+        ${anuladas ? `<span><b>${anuladas}</b> ${anuladas === 1 ? 'anulada' : 'anuladas'} (ponto para todos, mesmo em branco)</span>` : ''}
+      </div>
+      <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${mdi(s)}</td><td>${v.anul ? `<span class="anul" title="Questões anuladas contam como acerto">${plural(v.anul, 'anulada', 'anuladas')}</span>` : ''}${v.ok}/${v.n}</td></tr>`).join('')}</table>
       <p class="hint">As explicações aparecem embaixo de cada questão. Clique em <b>Continuar</b> para esconder o gabarito e seguir respondendo (as respostas marcadas ficam) ou em <b>Zerar</b> para recomeçar do zero.</p>
     </div>`;
   }
   paint();
+  botaoTopo();
+}
+
+// Botão discreto no canto inferior direito; aparece depois de rolar e fica acima da barra de Conferir/Zerar
+function botaoTopo() {
+  const topo = document.createElement('button');
+  topo.className = 'topo'; topo.type = 'button'; topo.title = 'Voltar ao topo'; topo.setAttribute('aria-label', 'Voltar ao topo'); topo.textContent = '↑';
+  topo.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.body.appendChild(topo);
+  const bar = document.getElementById('bar');
+  const ajusta = () => {
+    topo.classList.toggle('visivel', scrollY > 400);
+    topo.style.bottom = bar.hidden ? '' : `calc(${bar.offsetHeight + 12}px)`;
+  };
+  addEventListener('scroll', ajusta, { passive: true }); addEventListener('resize', ajusta); ajusta();
 }
 
 function slug(t) {
@@ -403,10 +434,7 @@ async function renderDoc(doc) {
   const primeiro = art.querySelector('h1');
   (primeiro ? primeiro.nextElementSibling : art.firstChild)?.before(...nav.children);
 
-  const topo = document.createElement('button');
-  topo.className = 'topo'; topo.type = 'button'; topo.title = 'Voltar ao topo'; topo.setAttribute('aria-label', 'Voltar ao topo'); topo.textContent = '↑';
-  topo.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-  document.body.appendChild(topo);
+  botaoTopo();
 
   if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 }
