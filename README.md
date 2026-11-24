@@ -80,4 +80,16 @@ Os simulados podem ser feitos direto no navegador, com correção automática:
 
 As respostas ficam salvas no navegador de cada aluno. **Conferir** mostra a nota por matéria e o gabarito comentado; **Zerar** apaga tudo para recomeçar. A página (`front-end/index.html`) lê os arquivos de `front-end/markdown/`, então qualquer edição neles aparece no site. Para incluir um simulado novo, adicione o `.md` em `front-end/markdown/` e uma linha na lista `SIMULADOS` do `front-end/index.html`.
 
+### Rodar o site localmente
+
+Abrir o `index.html` direto no navegador não funciona, porque a página precisa buscar os `.md` por HTTP. Use o servidor local em Docker:
+
+```
+make front          # http://localhost:8787/  (edite os .md e recarregue a página)
+make front-down     # para o servidor
+make -C front-end help   # outros comandos (logs, outra porta, versão sem Docker)
+```
+
+Os arquivos de Docker (`front-end/docker/`, `docker-compose.yml`, `Makefile`) servem só para uso local. O GitHub Actions publica apenas `front-end/index.html` e `front-end/markdown/`.
+
 As provas oficiais são geradas a partir dos PDFs com `make -C tools provas` (ou `prova-2017`, `prova-2018`, `prova-2021`, `prova-2023`, `prova-2024`, `prova-2024-reaplicacao`, `prova-2025`).
