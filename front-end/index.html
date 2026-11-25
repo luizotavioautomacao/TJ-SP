@@ -140,6 +140,12 @@ hr { display: none; }
 .topo:hover, .topo:focus-visible { opacity: 1; color: var(--accent); border-color: var(--accent); }
 .result .resumo { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: .9rem; color: var(--muted); }
 .result .resumo b { color: var(--text); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+h2.section { scroll-margin-top: 16px; }
+.result td a { color: inherit; text-decoration: none; }
+.result td a:hover, .result td a:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.result td a::after { content: " ↓"; color: var(--muted); font-size: .8em; opacity: .45; transition: opacity .15s; }
+.result td a:hover::after, .result td a:focus-visible::after { opacity: 1; }
 .result td .anul { color: var(--muted); font-size: .8rem; margin-right: 8px; }
 @media (max-width: 560px) { .toc ol { columns: 1; } }
 .md { font-size: .9rem; color: var(--muted); margin-top: 48px; }
@@ -274,8 +280,14 @@ async function renderSimulado(sim) {
     ${data.footer ? `<div class="md">${md(data.footer)}</div>` : ''}`;
 
   const qsEl = document.getElementById('qs');
+  // Âncora de cada matéria (usada pelo sumário do resultado): #sec-lingua-portuguesa etc.
+  const secId = {}, usados = {};
+  for (const s of data.segs) if (s.type === 'section' && !secId[s.title]) {
+    let id = 'sec-' + (slug(s.title) || 'materia'); usados[id] = (usados[id] || 0) + 1; if (usados[id] > 1) id += '-' + usados[id];
+    secId[s.title] = id;
+  }
   qsEl.innerHTML = data.segs.map(s => {
-    if (s.type === 'section') return `<h2 class="section">${mdi(s.title)}</h2>`;
+    if (s.type === 'section') return `<h2 class="section" id="${secId[s.title]}">${mdi(s.title)}</h2>`;
     if (s.type === 'md') return md(s.text);
     const stem = md(s.stem.join('\n'));
     return `<div class="q" id="q-${s.id}" data-id="${s.id}">
@@ -303,7 +315,8 @@ async function renderSimulado(sim) {
   // Conferir mostra o gabarito; Continuar esconde o gabarito e mantém as respostas marcadas
   btnCheck.onclick = () => {
     // Mantém na tela a questão que o aluno está vendo: as explicações inseridas acima empurrariam a página
-    const ancora = [...qsEl.querySelectorAll('.q')].find(q => q.getBoundingClientRect().top >= 0);
+    // (no topo da página não ancora: o relatório aparece onde o aluno já está)
+    const ancora = qsEl.getBoundingClientRect().top < 0 && [...qsEl.querySelectorAll('.q')].find(q => q.getBoundingClientRect().top >= 0) || null;
     const antes = ancora?.getBoundingClientRect().top;
     state.checked = !state.checked; save(); paint();
     if (ancora) window.scrollBy({ top: ancora.getBoundingClientRect().top - antes, behavior: 'instant' });
@@ -364,12 +377,15 @@ async function renderSimulado(sim) {
         <span><b>${certas}</b> ${certas === 1 ? 'certa' : 'certas'}</span><span><b>${erradas}</b> ${erradas === 1 ? 'errada' : 'erradas'}</span><span><b>${branco}</b> em branco</span>
         ${anuladas ? `<span><b>${anuladas}</b> ${anuladas === 1 ? 'anulada' : 'anuladas'} (ponto para todos, mesmo em branco)</span>` : ''}
       </div>
-      <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${mdi(s)}</td><td>${v.anul ? `<span class="anul" title="Questões anuladas contam como acerto">${plural(v.anul, 'anulada', 'anuladas')}</span>` : ''}${v.ok}/${v.n}</td></tr>`).join('')}</table>
-      <p class="hint">As explicações aparecem embaixo de cada questão. Clique em <b>Continuar</b> para esconder o gabarito e seguir respondendo (as respostas marcadas ficam) ou em <b>Zerar</b> para recomeçar do zero.</p>
+      <table>${Object.entries(bySec).map(([s, v]) => `<tr><td>${secId[s] ? `<a href="#${secId[s]}" title="Ir para as questões de ${s.replace(/"/g, '&quot;')}">${mdi(s)}</a>` : mdi(s)}</td><td>${v.anul ? `<span class="anul" title="Questões anuladas contam como acerto">${plural(v.anul, 'anulada', 'anuladas')}</span>` : ''}${v.ok}/${v.n}</td></tr>`).join('')}</table>
+      <p class="hint">Clique numa matéria para ir às questões dela. As explicações aparecem embaixo de cada questão. Clique em <b>Continuar</b> para esconder o gabarito e seguir respondendo (as respostas marcadas ficam) ou em <b>Zerar</b> para recomeçar do zero.</p>
     </div>`;
   }
   paint();
   botaoTopo();
+  // Link com #matéria: posiciona agora e de novo quando as imagens terminarem de carregar (elas empurram o conteúdo)
+  const irHash = () => document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({ behavior: 'instant' });
+  if (location.hash) { irHash(); Promise.all([...qsEl.querySelectorAll('img')].filter(i => !i.complete).map(i => new Promise(r => { i.onload = i.onerror = r; }))).then(irHash); }
 }
 
 // Botão discreto no canto inferior direito; aparece depois de rolar e fica acima da barra de Conferir/Zerar
